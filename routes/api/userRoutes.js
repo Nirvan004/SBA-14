@@ -1,6 +1,18 @@
 const router = require("express").Router();
 const User = require("../../models/User");
+const passport = require("passport");
 const { signToken } = require("../../utils/auth");
+
+router.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
+
+router.get(
+  "/auth/github/callback",
+  passport.authenticate("github", { session: false, failureRedirect: "/" }),
+  (req, res) => {
+    const token = signToken(req.user);
+    res.redirect(`/oauth-success?token=${token}`);
+  }
+);
 
 router.post("/register", async (req, res) => {
   try {
